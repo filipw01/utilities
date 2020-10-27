@@ -8,6 +8,8 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 
 # Create executables
 
+mkdir "${DIR}/bin"
+
 ## compress.py
 echo "#!${DIR}/venv/bin/python3
 import os

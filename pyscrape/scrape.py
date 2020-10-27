@@ -131,7 +131,7 @@ def init():
     server.quit()
 
     with open(f"{pyscrape_dir}/pastArticles.txt", "a") as file:
-        file.writelines("\n".join(scraped_links))
+        file.writelines("\n".join(scraped_links) + "\n")
 
     print(f"Skipped {skipped}")
     print(f"Scraped {total-skipped}")

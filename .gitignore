@@ -1,3 +1,6 @@
+bin/*
+pyscrape/pyscrape.plist
+
 __pycache__/
 *$py.class
 

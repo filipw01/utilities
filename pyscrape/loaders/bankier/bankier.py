@@ -35,7 +35,7 @@ class BankierLoader:
                     lead_node = article.find(
                         class_="lead") or article.find("b")
                     lead = lead_node.text
-                except():
+                except:
                     lead = "Nie udało się pobrać treści"
 
                 self.scraped_links.append(article_link)

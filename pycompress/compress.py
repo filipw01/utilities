@@ -37,6 +37,22 @@ def init():
             n += 1
         return f"{int(size)} {power_labels[n]}b"
 
+    def get_bytes_saved(output: str):
+        pattern_data_saved = re.compile(r"(\d*) --> (\d*)")
+        data = pattern_data_saved.search(output)
+        data_initial, data_end = data.groups()
+        data_saved = int(data_initial) - int(data_end)
+        return data_saved
+
+    def format_output(output):
+        output_string = output.decode("utf-8")
+        pattern_percentage = re.compile(r"\(-?(\d|\.)*%\)")
+        percentage = pattern_percentage.search(output_string)
+
+        data_saved = get_bytes_saved(output_string)
+
+        return f"Compressed {current_image_index}/{len(images)} - {filename} - {percentage.group()} {format_bytes(data_saved)}"
+
     images = getImages()
 
     print(f"Found {len(images)} images")
@@ -67,20 +83,9 @@ def init():
             else:
                 print(error_string)
         else:
-            output_string = output.decode("utf-8")
-            pattern_percentage = re.compile(r"\(-?(\d|\.)*%\)")
-            percentage = pattern_percentage.search(output_string)
-
-            pattern_data_saved = re.compile(r"(\d*) --> (\d*)")
-            data = pattern_data_saved.search(output_string)
-            data_initial, data_end = data.groups()
-            data_saved = int(data_initial) - int(data_end)
-
-            total_data_saved += data_saved
-
-            print(
-                f"Compressed {current_image_index}/{len(images)} - {filename} - {percentage.group()} {format_bytes(data_saved)}")
-        current_image_index += 1
+            total_data_saved += get_bytes_saved(output.decode("utf-8"))
+            print(format_output(output))
+            current_image_index += 1
 
     print(
         f"Finished compressing {len(images)} images, total data saved {format_bytes(total_data_saved)}")

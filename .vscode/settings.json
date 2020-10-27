@@ -1,6 +1,6 @@
 {
   "python.pythonPath": "/usr/local/Cellar/python@3.8/3.8.6/Frameworks/Python.framework/Versions/3.8/bin/python3.8",
-  "python.linting.pylintPath": "./bin/pylint",
+  "python.linting.pylintPath": "./venv/bin/pylint",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true
 }

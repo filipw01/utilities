@@ -28,6 +28,9 @@ from pyscrape.scrape import init
 
 init()" >${DIR}/bin/scrape.py
 
+# Add execute permissions
+chmod +x ${DIR}/bin/*
+
 #Create launchd file
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
@@ -64,7 +67,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 </plist>" >${DIR}/pyscrape/pyscrape.plist
 
 # Add bin directory to $PATH if not added
-// TODO:
+# TODO:
 
 # Ask for password and email
 echo "What's your email username (email)?"

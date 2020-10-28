@@ -5,6 +5,8 @@ import os
 import glob
 import shlex
 import re
+from pycompress.processors import jpeg, png
+from pycompress.format import format_bytes
 
 
 def init():
@@ -13,12 +15,13 @@ def init():
                         help="Directory to compress files in")
     parser.add_argument("-r", "-R", "--recursive", action="store_true",
                         help="Compress files reccursively")
-    parser.add_argument("-q", "--quality", type=int, default=80,
-                        help="Quality of compressed images")
+    parser.add_argument("-qj", "--quality-jpeg", type=int, default=80,
+                        help="Quality of compressed JPEG images (0-100)")
+    parser.add_argument("-qp", "--quality-png", type=int, default=3,
+                        help="Quality of compressed PNG images (0-7)")
     args = parser.parse_args()
 
-    def getImages():
-        extensions = ["jpg", "jpeg", "JPG", "JPEG"]
+    def get_images(extensions):
         images = []
         for extension in extensions:
             if args.recursive == True:
@@ -28,64 +31,14 @@ def init():
                 images += glob.glob(f"{args.directory}/*.{extension}")
         return images
 
-    def format_bytes(size):
-        power = 1024
-        n = 0
-        power_labels = {0: '', 1: 'k', 2: 'M'}
-        while size > power:
-            size /= power
-            n += 1
-        return f"{int(size)} {power_labels[n]}b"
+    jpeg_images = get_images(["jpg", "jpeg", "JPG", "JPEG"])
+    png_images = get_images(
+        ["png", "PNG", "bmp", "BMP", "gif", "GIF", "pnm", "PNM", "tiff", "TIFF"])
 
-    def get_bytes_saved(output: str):
-        pattern_data_saved = re.compile(r"(\d*) --> (\d*)")
-        data = pattern_data_saved.search(output)
-        data_initial, data_end = data.groups()
-        data_saved = int(data_initial) - int(data_end)
-        return data_saved
+    print(f"Found {len(jpeg_images) + len(png_images)} images")
 
-    def format_output(output):
-        output_string = output.decode("utf-8")
-        pattern_percentage = re.compile(r"\(-?(\d|\.)*%\)")
-        percentage = pattern_percentage.search(output_string)
-
-        data_saved = get_bytes_saved(output_string)
-
-        return f"Compressed {current_image_index}/{len(images)} - {filename} - {percentage.group()} {format_bytes(data_saved)}"
-
-    images = getImages()
-
-    print(f"Found {len(images)} images")
-    current_image_index = 1
-
-    total_data_saved = 0
-
-    for image in images:
-        dirpath = os.path.realpath(args.directory)
-        subdirpath = os.path.dirname(os.path.realpath(
-            image).replace(f"{dirpath}/", "", 1))
-        filename = os.path.basename(image)
-        os.makedirs(f"{dirpath}/compressed/{subdirpath}", exist_ok=True)
-        shellcommand = ["jpegoptim", f"-m{args.quality}", "-d",
-                        f"{dirpath}/compressed/{subdirpath}", "-p", image]
-        print(f"Compressing {current_image_index}/{len(images)} - {filename}")
-        sub = subprocess.Popen(
-            shellcommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = sub.communicate()
-
-        if error:
-            error_string = error.decode("utf-8")
-            print(error_string)
-            print(shellcommand)
-            if error_string.find("skipping"):
-                print(
-                    f"Skipped {current_image_index}/{len(images)} - {filename}")
-            else:
-                print(error_string)
-        else:
-            total_data_saved += get_bytes_saved(output.decode("utf-8"))
-            print(format_output(output))
-            current_image_index += 1
-
+    jpeg_data_saved = jpeg.compress(jpeg_images, args)
+    png_data_saved = png.compress(png_images, args)
+    total_data_saved = jpeg_data_saved + png_data_saved
     print(
-        f"Finished compressing {len(images)} images, total data saved {format_bytes(total_data_saved)}")
+        f"Finished compressing {len(jpeg_images) + len(png_images)}, total data saved {format_bytes(total_data_saved )}")

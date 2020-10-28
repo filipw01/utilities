@@ -1,10 +1,11 @@
 #!/bin/bash
 
+DIR=$(cd "$(dirname "$0")" && pwd)
+
 # Install venv
 python3 -m venv venv
-./venv/bin/pip install -r requirements.txt
-
-DIR=$(cd "$(dirname "$0")" && pwd)
+${DIR}/venv/bin/pip install --upgrade pip
+${DIR}/venv/bin/pip install -r requirements.txt
 
 # Create executables
 
@@ -81,5 +82,5 @@ echo "EMAIL_USERNAME=${EMAIL}
 EMAIL_PASSWORD=${PASSWORD}" >${DIR}/pyscrape/.env
 
 # Add MacOS cron job using launchd
-cp ./pyscrape/pyscrape.plist ~/Library/LaunchAgents/pyscrape.plist
+cp ${DIR}/pyscrape/pyscrape.plist ~/Library/LaunchAgents/pyscrape.plist
 launchctl load ~/Library/LaunchAgents/pyscrape.plist

@@ -16,3 +16,4 @@ def init():
 
     send_html_email(email)
     bankier.save_scraped_articles()
+    bankier.remove_old_articles()

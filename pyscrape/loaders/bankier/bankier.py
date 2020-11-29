@@ -27,7 +27,9 @@ class BankierLoader:
             if img and article_link not in self.get_past_articles_links():
                 title = link.find(
                     class_="m-title-with-label-item__title").text
-
+                if self.is_boring(title):
+                    print(f"Bankier: Boring")
+                    continue
                 try:
                     req = requests.get(article_link)
                     soup = BeautifulSoup(req.text, features="html.parser")
@@ -36,7 +38,7 @@ class BankierLoader:
                         class_="lead") or article.find("b")
                     lead = lead_node.text
                 except:
-                    lead = "Nie udało się pobrać treści"
+                    lead = "Nie udało się pobrać treści"
 
                 self.scraped_links.append(article_link)
                 articles.append((article_link, img["src"], title, lead))
@@ -49,6 +51,19 @@ class BankierLoader:
 
         return articles
 
+    def is_boring(self, title):
+        boring_fragments = [
+            "Zapowiedź dnia",
+            "To był dzień",
+            "Pekao",
+            "budowlan",
+            "Witucki",
+        ]
+        for boring in boring_fragments:
+            if boring in title:
+                return True
+        return False
+
     def get_past_articles_links(self):
         with open(f"{self.bankier_loader_dir}/pastArticles.txt", "r") as file:
             return file.read().split("\n")
@@ -56,6 +71,14 @@ class BankierLoader:
     def save_scraped_articles(self):
         with open(f"{self.bankier_loader_dir}/pastArticles.txt", "a") as file:
             file.writelines("\n".join(self.scraped_links) + "\n")
+
+    def remove_old_articles(self):
+        with open(f"{self.bankier_loader_dir}/pastArticles.txt", "r+") as file:
+            articles = file.read().split("\n")[:-1]
+            last_100_article_links = "\n".join(articles[-100:])
+            file.seek(0)
+            file.truncate()
+            file.write(last_100_article_links)
 
     def absoluteLink(self, link: str):
         if link.startswith("/"):

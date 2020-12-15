@@ -59,6 +59,8 @@ class BankierLoader:
             "budowlan",
             "Witucki",
             "Kuczyński",
+            "Bankier.pl",
+            "bankier.pl",
         ]
         for boring in boring_fragments:
             if boring in title:

@@ -43,25 +43,25 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <string>org.filip.scrape</string>
         <key>ProgramArguments</key>
         <array>
-            <string>${DIR}/bin/scrape.py</string>
+            <string>${DIR}/bin/scrape.py || true</string>
         </array>
         <key>StartCalendarInterval</key>
         <array>
             <dict>
                 <key>Hour</key>
-                <integer>6</integer>
+                <integer>7</integer>
                 <key>Minute</key>
                 <integer>0</integer>
             </dict>
             <dict>
                 <key>Hour</key>
-                <integer>16</integer>
+                <integer>13</integer>
                 <key>Minute</key>
                 <integer>0</integer>
             </dict>
             <dict>
                 <key>Hour</key>
-                <integer>22</integer>
+                <integer>17</integer>
                 <key>Minute</key>
                 <integer>0</integer>
             </dict>

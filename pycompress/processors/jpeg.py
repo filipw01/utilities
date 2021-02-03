@@ -27,17 +27,17 @@ def compress(images, args):
             image).replace(f"{dirpath}/", "", 1))
         filename = os.path.basename(image)
         os.makedirs(f"{dirpath}/compressed/{subdirpath}", exist_ok=True)
-        shellcommand = ["jpegoptim", f"-m{args.quality_jpeg}", "-d",
+        shell_command = ["jpegoptim", f"-m{args.quality_jpeg}", "-d",
                         f"{dirpath}/compressed/{subdirpath}", "-p", image]
         print(f"Compressing {index+1}/{len(images)} - {filename}")
         sub = subprocess.Popen(
-            shellcommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = sub.communicate()
 
         if error:
             error_string = error.decode("utf-8")
             print(error_string)
-            print(shellcommand)
+            print(shell_command)
             if error_string.find("skipping") != -1:
                 print(
                     f"Skipped {index+1}/{len(images)} - {filename}")

@@ -19,7 +19,7 @@ def send_html_email(html):
     server.quit()
 
 
-def build_html_email(articles):
+def build_html_email(articles, updated_packages):
     body = ""
     for link, img_src, title, lead in articles:
         body += f"""
@@ -65,6 +65,7 @@ def build_html_email(articles):
             <table border="0" cellpadding="0" cellspacing="0" width="600">
             <tr>
                 <td align="center" valign="top">
+                    {" ".join(updated_packages)}
                     {body}
                 </td>
             </tr>

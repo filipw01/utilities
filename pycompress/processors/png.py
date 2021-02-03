@@ -30,11 +30,11 @@ def compress(images, args):
             image).replace(f"{dirpath}/", "", 1))
         filename = os.path.basename(image)
         os.makedirs(f"{dirpath}/compressed/{subdirpath}", exist_ok=True)
-        shellcommand = ["optipng", image, "-dir",
+        shell_command = ["optipng", image, "-dir",
                         f"{dirpath}/compressed/{subdirpath}", f"-o{args.quality_png}"]
         print(f"Compressing {index+1}/{len(images)} - {filename}")
         sub = subprocess.Popen(
-            shellcommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         _, error = sub.communicate()
 
         out_string = error.decode("utf-8")

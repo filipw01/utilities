@@ -1,10 +1,20 @@
 import subprocess
 
+from pyscrape.loaders.loader import Loader
 
-class BrewLoader:
 
+class BrewLoader(Loader):
     def __init__(self):
         self.updated_packages = []
+
+    def scrape(self):
+        self.update_packages()
+
+    def prepare_email_content(self):
+        return " ".join(self.updated_packages)
+
+    def post_email(self):
+        pass
 
     def update_packages(self):
         shell_command = ["brew", "upgrade"]

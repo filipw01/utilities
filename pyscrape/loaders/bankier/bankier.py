@@ -3,14 +3,17 @@ import requests
 import os
 import re
 
+from pyscrape.loaders.loader import Loader
 
-class BankierLoader:
+
+class BankierLoader(Loader):
 
     def __init__(self):
         self.scraped_titles = []
+        self.articles = []
         self.bankier_loader_dir = os.path.dirname(os.path.realpath(__file__))
 
-    def get_articles(self):
+    def scrape(self):
         req = requests.get('https://bankier.pl')
 
         soup = BeautifulSoup(req.text, features="html.parser")
@@ -19,11 +22,12 @@ class BankierLoader:
             "a", attrs={"data-vr-contentbox": re.compile(r"news")})
 
         total = len(links)
-        articles = []
+        self.articles = []
+        self.scraped_titles = []
 
         for link in links:
             img = link.find("img")
-            article_link = self.absoluteLink(link["href"])
+            article_link = self.absolute_link(link["href"])
             title_node = link.find(
                 class_="m-title-with-label-item__title")
             if title_node is None:
@@ -51,14 +55,29 @@ class BankierLoader:
                 lead = "Nie udało się pobrać treści"
 
             self.scraped_titles.append(title)
-            articles.append((article_link, img["src"], title, lead))
-            print(f"Bankier: Scraped {len(articles)} - {title}")
+            self.articles.append((article_link, img["src"], title, lead))
+            print(f"Bankier: Scraped {len(self.articles)} - {title}")
 
-        print(f"Bankier: Scraped in total {len(articles)}/{total}")
+        print(f"Bankier: Scraped in total {len(self.articles)}/{total}")
 
-        return articles
+    def prepare_email_content(self):
+        body = ""
+        for link, img_src, title, lead in self.articles:
+            body += f"""
+                    <a href="{link}">
+                        <img src="{img_src}"/>
+                        <h1>{title}</h1>
+                        <p>{lead}</p>
+                    </a>
+                    """
+        return body
 
-    def is_boring(self, title):
+    def post_email(self):
+        self.save_scraped_articles()
+        self.remove_old_articles()
+
+    @staticmethod
+    def is_boring(title):
         boring_fragments = [
             "Zapowiedź dnia",
             "To był dzień",
@@ -91,7 +110,8 @@ class BankierLoader:
             file.truncate()
             file.write(last_100_article_links + "\n")
 
-    def absoluteLink(self, link: str):
+    @staticmethod
+    def absolute_link(link: str):
         if link.startswith("/"):
             return f"https://bankier.pl{link}"
         return link

@@ -1,14 +1,16 @@
 from dotenv import load_dotenv
-from pyscrape.loaders.bankier.bankier import BankierLoader
 from pyscrape.html_email import send_html_email, build_html_email
+from pyscrape.loaders.bankier.bankier import BankierLoader
 from pyscrape.loaders.brew.brew import BrewLoader
+from pyscrape.loaders.no_fluff_jobs.no_fluff_jobs import NoFluffJobsLoader
 
 
 def init():
     load_dotenv(verbose=True)
     loaders = [
         BankierLoader(),
-        BrewLoader()
+        BrewLoader(),
+        NoFluffJobsLoader()
     ]
     for loader in loaders:
         loader.scrape()

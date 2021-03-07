@@ -1,7 +1,7 @@
 bin/*
 pyscrape/pyscrape.plist
-pyscrape/loaders/bankier/pastArticles.txt
-pyscrape/loaders/no_fluff_jobs/pastJobs.txt
+**/pastArticles.txt
+**/pastJobs.txt
 
 __pycache__/
 *$py.class

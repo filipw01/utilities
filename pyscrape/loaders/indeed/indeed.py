@@ -6,33 +6,31 @@ from bs4 import BeautifulSoup
 from pyscrape.loaders.loader import Loader
 
 
-class NoFluffJobsLoader(Loader):
+class IndeedLoader(Loader):
     def __init__(self):
         self.offers = []
         self.loader_dir = os.path.dirname(os.path.realpath(__file__))
 
     def scrape(self):
-        req = requests.get('https://nofluffjobs.com/pl/jobs/remote/frontend?criteria=category%3Dfullstack')
+        req = requests.get(
+            'https://uk.indeed.com/jobs?q=full+stack+developer&sort=date&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11')
 
         soup = BeautifulSoup(req.text, features='html.parser')
-        root = soup.find_all('nfj-postings-list')
-        offers = []
-        for offer_list in root:
-            offers += list(map(self.offer_from_tag, offer_list.findChildren('a', recursive=False)))
+        offer_list = soup.find_all(class_='jobsearch-SerpJobCard')
+        offers = list(map(self.offer_from_tag, offer_list))
 
         old_job_titles = self.get_past_job_titles()
         # include only new offers
         self.offers = list(filter(lambda x: x['title'] not in old_job_titles, offers))
-        # exclude boring tech
-        boring_tech = ['php', '.net', 'angular', 'java', 'ruby on rails', 'wordpress']
-        self.offers = list(filter(lambda x: x['technology'] not in boring_tech, self.offers))
+        # exclude non-remote jobs
+        self.offers = list(filter(lambda x: x['remote'] == 'Remote', self.offers))
 
     def prepare_email_content(self):
-        mail = '<h2>No Fluff Jobs</h2>'
+        mail = '<h2>Indeed</h2>'
         for offer in self.offers:
             mail += f'''
             <a href='{offer['href']}'>
-                {offer['title']} {offer['salary']}
+                {offer['title']} {offer['salary']} in {offer['location']}
             </a>
             '''
         return mail
@@ -59,20 +57,22 @@ class NoFluffJobsLoader(Loader):
 
     @staticmethod
     def offer_from_tag(tag):
-        position = tag.find(class_='posting-title__position').text.strip()
-        company = tag.find(class_='posting-title__company').text.strip()
-        salary = tag.find(class_='salary').text
-        technology = tag.find('common-posting-item-tag').text
-        href = NoFluffJobsLoader.absolute_link(tag['href'])
+        position = tag.find(class_='jobtitle').text.strip()
+        company = tag.find(class_='company').text.strip()
+        location = tag.find(class_='location').text.strip()
+        remote = getattr(tag.find(class_='remote'), 'text', 'Error').strip()
+        salary = getattr(tag.find(class_='salaryText'), 'text', 'Error').strip()
+        href = IndeedLoader.absolute_link(tag.find(class_='jobtitle')['href'])
         return {
             'href': href,
             'title': f'{position} {company}',
+            'remote': remote,
+            'location': location,
             'salary': salary,
-            'technology': technology
         }
 
     @staticmethod
     def absolute_link(link: str):
         if link.startswith('/'):
-            return f'https://nofluffjobs.com{link}'
+            return f'https://uk.indeed.com{link}'
         return link

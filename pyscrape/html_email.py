@@ -6,25 +6,25 @@ from email.mime.text import MIMEText
 
 
 def send_html_email(html):
-    server = SMTP("smtp.gmail.com", 587)
+    server = SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
-    server.login(os.getenv("EMAIL_USERNAME"), os.getenv("EMAIL_PASSWORD"))
+    server.login(os.getenv('EMAIL_USERNAME'), os.getenv('EMAIL_PASSWORD'))
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"Bankier - {date.today()}"
-    msg.attach(MIMEText(html, "html"))
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f'Bankier - {date.today()}'
+    msg.attach(MIMEText(html, 'html'))
 
-    server.sendmail("news@bankier.pl", "wachowiakf@gmail.com", msg.as_string())
+    server.sendmail('news@bankier.pl', 'wachowiakf@gmail.com', msg.as_string())
     server.quit()
 
 
 def build_html_email(elements):
-    return f"""
+    return f'''
         <!DOCTYPE html>
-        <html lang="en">
+        <html lang='en'>
         <head>
-            <meta charset="UTF-8">
+            <meta charset='UTF-8'>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Email</title>
             <style>
@@ -55,9 +55,9 @@ def build_html_email(elements):
             <table border="0" cellpadding="0" cellspacing="0" width="600">
             <tr>
                 <td align="center" valign="top">
-                    {"".join(elements)}
+                    {''.join(elements)}
                 </td>
             </tr>
         </body>
         </html>
-        """
+        '''

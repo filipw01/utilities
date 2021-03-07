@@ -5,4 +5,4 @@ def format_bytes(size):
     while size > power:
         size /= power
         n += 1
-    return f"{int(size)} {power_labels[n]}b"
+    return f'{int(size)} {power_labels[n]}b'

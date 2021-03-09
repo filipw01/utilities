@@ -62,7 +62,7 @@ class NoFluffJobsLoader(Loader):
         position = tag.find(class_='posting-title__position').text.strip()
         company = tag.find(class_='posting-title__company').text.strip()
         salary = tag.find(class_='salary').text
-        technology = tag.find('common-posting-item-tag').text
+        technology = getattr(tag.find('common-posting-item-tag'), 'text', 'Error').strip()
         href = NoFluffJobsLoader.absolute_link(tag['href'])
         return {
             'href': href,

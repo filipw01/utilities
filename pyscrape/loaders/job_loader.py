@@ -23,10 +23,10 @@ class JobLoader(Loader):
     def remove_old_jobs(self):
         with open(f'{self.loader_dir}/pastJobs.txt', 'r+') as file:
             jobs = file.read().split('\n')[:-1]
-            last_50_jobs = '\n'.join(jobs[-50:])
+            last_200_jobs = '\n'.join(jobs[-500:])
             file.seek(0)
             file.truncate()
-            file.write(last_50_jobs + '\n')
+            file.write(last_200_jobs + '\n')
 
     def get_past_job_titles(self):
         with open(f'{self.loader_dir}/pastJobs.txt', 'r') as file:

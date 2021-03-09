@@ -3,11 +3,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from pyscrape.loaders.loader import Loader
+from pyscrape.loaders.job_loader import JobLoader
 
 
-class NoFluffJobsLoader(Loader):
+class NoFluffJobsLoader(JobLoader):
     def __init__(self):
+        super().__init__()
         self.offers = []
         self.loader_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -16,16 +17,33 @@ class NoFluffJobsLoader(Loader):
 
         soup = BeautifulSoup(req.text, features='html.parser')
         root = soup.find_all('nfj-postings-list')
-        offers = []
+        self.offers = []
         for offer_list in root:
-            offers += list(map(self.offer_from_tag, offer_list.findChildren('a', recursive=False)))
+            self.offers += list(map(self.offer_from_tag, offer_list.findChildren('a', recursive=False)))
 
+        all_offers_count = len(self.offers)
+        (self.offers, old, boring) = self.filter_jobs()
+        print(f'NoFluffJobs: Scraped {len(self.offers)}/{all_offers_count}')
+        print(f'{"":13}Omitted {len(old) + len(boring)} jobs:')
+        print(f'{"":21}{len(old)} old')
+        print(f'{"":21}{len(boring)} boring')
+
+    def filter_jobs(self):
+        result = []
+        old = []
+        boring = []
         old_job_titles = self.get_past_job_titles()
-        # include only new offers
-        self.offers = list(filter(lambda x: x['title'] not in old_job_titles, offers))
-        # exclude boring tech
         boring_tech = ['php', '.net', 'angular', 'java', 'ruby on rails', 'wordpress']
-        self.offers = list(filter(lambda x: x['technology'] not in boring_tech, self.offers))
+
+        for job in self.offers:
+            if job['title'] in old_job_titles:
+                old.append(job)
+            elif job['technology'] in boring_tech:
+                boring.append(job)
+            else:
+                result.append(job)
+
+        return result, old, boring
 
     def prepare_email_content(self):
         mail = '<h2>No Fluff Jobs</h2>'
@@ -36,26 +54,6 @@ class NoFluffJobsLoader(Loader):
             </a>
             '''
         return mail
-
-    def post_email(self):
-        self.save_scraped_jobs()
-        self.remove_old_jobs()
-
-    def get_past_job_titles(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'r') as file:
-            return file.read().split('\n')[:-1]
-
-    def save_scraped_jobs(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'a') as file:
-            file.writelines('\n'.join(map(lambda x: x['title'], self.offers)) + '\n')
-
-    def remove_old_jobs(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'r+') as file:
-            jobs = file.read().split('\n')[:-1]
-            last_100_jobs = '\n'.join(jobs[-100:])
-            file.seek(0)
-            file.truncate()
-            file.write(last_100_jobs + '\n')
 
     @staticmethod
     def offer_from_tag(tag):

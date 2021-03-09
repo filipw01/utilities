@@ -3,11 +3,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from pyscrape.loaders.loader import Loader
+from pyscrape.loaders.job_loader import JobLoader
 
 
-class IndeedLoader(Loader):
+class IndeedLoader(JobLoader):
     def __init__(self):
+        super().__init__()
         self.offers = []
         self.loader_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,13 +18,30 @@ class IndeedLoader(Loader):
 
         soup = BeautifulSoup(req.text, features='html.parser')
         offer_list = soup.find_all(class_='jobsearch-SerpJobCard')
-        offers = list(map(self.offer_from_tag, offer_list))
+        self.offers = list(map(self.offer_from_tag, offer_list))
 
+        all_offers_count = len(self.offers)
+        (self.offers, non_remote, old) = self.filter_jobs()
+        print(f'Indeed: Scraped {len(self.offers)}/{all_offers_count}')
+        print(f'{"":8}Omitted {len(old) + len(non_remote)} jobs:')
+        print(f'{"":16}{len(old)} old')
+        print(f'{"":16}{len(non_remote)} non-remote')
+
+    def filter_jobs(self):
+        result = []
+        non_remote = []
+        old = []
         old_job_titles = self.get_past_job_titles()
-        # include only new offers
-        self.offers = list(filter(lambda x: x['title'] not in old_job_titles, offers))
-        # exclude non-remote jobs
-        self.offers = list(filter(lambda x: x['remote'] == 'Remote', self.offers))
+
+        for job in self.offers:
+            if job['title'] in old_job_titles:
+                old.append(job)
+            elif job['remote'] != 'Remote':
+                non_remote.append(job)
+            else:
+                result.append(job)
+
+        return result, non_remote, old
 
     def prepare_email_content(self):
         mail = '<h2>Indeed</h2>'
@@ -34,26 +52,6 @@ class IndeedLoader(Loader):
             </a>
             '''
         return mail
-
-    def post_email(self):
-        self.save_scraped_jobs()
-        self.remove_old_jobs()
-
-    def get_past_job_titles(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'r') as file:
-            return file.read().split('\n')[:-1]
-
-    def save_scraped_jobs(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'a') as file:
-            file.writelines('\n'.join(map(lambda x: x['title'], self.offers)) + '\n')
-
-    def remove_old_jobs(self):
-        with open(f'{self.loader_dir}/pastJobs.txt', 'r+') as file:
-            jobs = file.read().split('\n')[:-1]
-            last_100_jobs = '\n'.join(jobs[-100:])
-            file.seek(0)
-            file.truncate()
-            file.write(last_100_jobs + '\n')
 
     @staticmethod
     def offer_from_tag(tag):

@@ -41,16 +41,20 @@ class IndeedLoader(JobLoader):
                 self.offers += list(map(self.offer_from_tag, offer_list))
 
         all_offers_count = len(self.offers)
-        (self.offers, non_remote, old) = self.filter_jobs()
+        (self.offers, non_remote, old, boring) = self.filter_jobs()
         print(f'Indeed: Scraped {len(self.offers)}/{all_offers_count}')
-        print(f'{"":9}Omitted {len(old) + len(non_remote)} jobs:')
+        print(f'{"":8}Omitted {len(old) + len(non_remote)} jobs:')
         print(f'{"":16}{len(old)} old')
         print(f'{"":16}{len(non_remote)} non-remote')
+        print(f'{"":16}{len(boring)} boring')
 
     def filter_jobs(self):
         result = []
         non_remote = []
         old = []
+        boring = []
+        boring_techs = ['php', '.net', 'c#', 'angular', 'senior', 'wordpress', 'sr.', 'lead', 'back-end',
+                        'project manager']
         old_job_titles = self.get_past_job_titles()
 
         for job in self.offers:
@@ -59,9 +63,14 @@ class IndeedLoader(JobLoader):
             elif not job['remote']:
                 non_remote.append(job)
             else:
-                result.append(job)
+                for boring_tech in boring_techs:
+                    if boring_tech in job['title'].lower():
+                        boring.append(job)
+                        break
+                else:
+                    result.append(job)
 
-        return result, non_remote, old
+        return result, non_remote, old, boring
 
     def prepare_email_content(self):
         mail = '<h2>Indeed</h2>'

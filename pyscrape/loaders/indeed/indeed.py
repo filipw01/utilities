@@ -54,7 +54,7 @@ class IndeedLoader(JobLoader):
         old = []
         boring = []
         boring_techs = ['php', '.net', 'c#', 'angular', 'senior', 'wordpress', 'sr.', 'lead', 'back-end',
-                        'project manager']
+                        'project manager', 'java ', 'devops', 'head of']
         old_job_titles = self.get_past_job_titles()
 
         for job in self.offers:
@@ -82,6 +82,39 @@ class IndeedLoader(JobLoader):
             '''
         return mail
 
+    @staticmethod
+    def salary_normalizer(salary):
+        if salary == 'Error':
+            return None
+        multiplier = 1
+        salary = salary.replace(',', '').replace('a month', '').replace('From', '').replace('Up to', '') \
+            .replace('pro Jahr', 'a year').replace('pro Tag', 'a day').replace('pro Stunde', 'an hour')
+        if 'a year' in salary:
+            multiplier /= 12
+            salary = salary.replace('a year', '')
+        if 'a day' in salary:
+            multiplier *= 23
+            salary = salary.replace('a day', '')
+        if 'an hour' in salary:
+            multiplier *= 160
+            salary = salary.replace('an hour', '')
+        if '$' in salary:
+            multiplier *= 3.8
+            salary = salary.replace('$', '')
+        if '€' in salary:
+            multiplier *= 4.5
+            salary = salary.replace('€', '')
+        if '£' in salary:
+            multiplier *= 5.3
+            salary = salary.replace('£', '')
+        if multiplier != 1:
+            salary_range = [round(float(x) * multiplier, -3) for x in salary.split(' - ')]
+            if len(salary_range) == 2:
+                return f'{salary_range[0]:,}PLN - {salary_range[1]:,}PLN monthly'
+            else:
+                return f'{salary_range[0]:,}PLN'
+        return salary
+
     def offer_from_tag(self, tag):
         position = tag.find(class_='jobtitle').text.strip()
         company = getattr(tag.find(class_='company'), 'text', 'Error').strip()
@@ -94,7 +127,7 @@ class IndeedLoader(JobLoader):
             'title': f'{position} {company}',
             'remote': remote == 'Remote' or remote == 'Homeoffice',
             'location': location,
-            'salary': salary,
+            'salary': IndeedLoader.salary_normalizer(salary),
         }
 
     def absolute_link(self, link: str):

@@ -54,7 +54,7 @@ class IndeedLoader(JobLoader):
         old = []
         boring = []
         boring_techs = ['php', '.net', 'c#', 'angular', 'senior', 'wordpress', 'sr.', 'lead', 'back-end',
-                        'project manager', 'java ', 'devops', 'head of']
+                        'project manager', 'java ', 'devops', 'head of', 'ruby on rails']
         old_job_titles = self.get_past_job_titles()
 
         for job in self.offers:

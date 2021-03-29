@@ -54,7 +54,8 @@ class IndeedLoader(JobLoader):
         old = []
         boring = []
         boring_techs = ['php', '.net', 'c#', 'angular', 'senior', 'wordpress', 'sr.', 'lead', 'back-end',
-                        'project manager', 'java ', 'devops', 'head of', 'ruby on rails']
+                        'project manager', 'java ', 'devops', 'head of', 'ruby on rails', 'vue', 'c++', 'data science',
+                        'designer', 'backend', 'principal']
         old_job_titles = self.get_past_job_titles()
 
         for job in self.offers:
@@ -88,10 +89,14 @@ class IndeedLoader(JobLoader):
             return None
         multiplier = 1
         salary = salary.replace(',', '').replace('a month', '').replace('From', '').replace('Up to', '') \
-            .replace('pro Jahr', 'a year').replace('pro Tag', 'a day').replace('pro Stunde', 'an hour')
+            .replace('pro Jahr', 'a year').replace('pro Tag', 'a day').replace('pro Stunde', 'an hour') \
+            .replace('pro Monat', '')
         if 'a year' in salary:
             multiplier /= 12
             salary = salary.replace('a year', '')
+        if 'a week' in salary:
+            multiplier *= 4
+            salary = salary.replace('a week', '')
         if 'a day' in salary:
             multiplier *= 23
             salary = salary.replace('a day', '')
@@ -99,13 +104,13 @@ class IndeedLoader(JobLoader):
             multiplier *= 160
             salary = salary.replace('an hour', '')
         if '$' in salary:
-            multiplier *= 3.8
+            multiplier *= 3.9
             salary = salary.replace('$', '')
         if '€' in salary:
-            multiplier *= 4.5
+            multiplier *= 4.6
             salary = salary.replace('€', '')
         if '£' in salary:
-            multiplier *= 5.3
+            multiplier *= 5.4
             salary = salary.replace('£', '')
         if multiplier != 1:
             salary_range = [round(float(x) * multiplier, -3) for x in salary.split(' - ')]

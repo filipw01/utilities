@@ -14,13 +14,13 @@ class NoFluffJobsLoader(JobLoader):
 
     def scrape(self):
         req = requests.get('https://nofluffjobs.com/pl/jobs/remote/frontend?criteria=category%3Dfullstack')
-
         soup = BeautifulSoup(req.text, features='html.parser')
         root = soup.find_all('nfj-postings-list')
+        print(root)
         self.offers = []
         for offer_list in root:
             self.offers += list(map(self.offer_from_tag, offer_list.findChildren('a', recursive=False)))
-
+        # TODO: Fix this loader
         all_offers_count = len(self.offers)
         (self.offers, old, boring) = self.filter_jobs()
         print(f'NoFluffJobs: Scraped {len(self.offers)}/{all_offers_count}')

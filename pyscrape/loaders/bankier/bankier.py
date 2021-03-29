@@ -101,6 +101,10 @@ class BankierLoader(Loader):
             'Bankier.pl',
             'bankier.pl',
             'Najważniejsze wiadomości',
+            'przerw',
+            'nieruchomo',
+            'lidl',
+            'biedronka',
         ]
         for boring in boring_fragments:
             if boring in title:

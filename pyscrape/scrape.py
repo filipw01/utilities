@@ -12,9 +12,9 @@ def init():
     loaders = [
         BankierLoader(),
         BrewLoader(),
-        JustJoinItLoader(),
-        NoFluffJobsLoader(),
-        IndeedLoader()
+        # JustJoinItLoader(),
+        # NoFluffJobsLoader(),
+        # IndeedLoader()
     ]
     for loader in loaders:
         loader.scrape()

@@ -1,3 +1,6 @@
+import time
+import boto3
+from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup
 import requests
 import os
@@ -5,10 +8,12 @@ import re
 
 from pyscrape.loaders.loader import Loader
 
+client = boto3.client('dynamodb', region_name='eu-central-1')
+
 
 class BankierLoader(Loader):
-
     def __init__(self):
+        self.new_scraped_articles = []
         self.scraped_titles = []
         self.articles = []
         self.bankier_loader_dir = os.path.dirname(os.path.realpath(__file__))
@@ -23,6 +28,7 @@ class BankierLoader(Loader):
 
         total = len(links)
         self.articles = []
+        self.new_scraped_articles = []
         self.scraped_titles = []
         old_articles = []
         no_image_articles = []
@@ -40,7 +46,7 @@ class BankierLoader(Loader):
                 no_image_articles.append(link)
                 continue
             title = title_node.text.strip()
-            if title in self.get_past_articles_titles():
+            if self.is_past_article(title):
                 old_articles.append(link)
                 continue
 
@@ -57,7 +63,8 @@ class BankierLoader(Loader):
             except:
                 lead = 'Nie udało się pobrać treści'
 
-            self.scraped_titles.append(title)
+            current_epoch = int(time.time())
+            self.new_scraped_articles.append({'url': article_link, 'name': title, 'ttl': current_epoch})
             self.articles.append((article_link, img['src'], title, lead))
             print(f'Bankier: Scraped {len(self.articles)} - {title}')
 
@@ -87,7 +94,6 @@ class BankierLoader(Loader):
 
     def post_email(self):
         self.save_scraped_articles()
-        self.remove_old_articles()
 
     @staticmethod
     def is_boring(title):
@@ -111,21 +117,40 @@ class BankierLoader(Loader):
                 return True
         return False
 
-    def get_past_articles_titles(self):
-        with open(f'{self.bankier_loader_dir}/pastArticles.txt', 'r') as file:
-            return file.read().split('\n')[:-1]
+    @staticmethod
+    def is_past_article(title):
+        result = client.get_item(TableName="bankierTable", Key={
+            'name': {
+                'S': title
+            }
+        })
+        if 'Item' in result:
+            return True
+        return False
 
     def save_scraped_articles(self):
-        with open(f'{self.bankier_loader_dir}/pastArticles.txt', 'a') as file:
-            file.writelines('\n'.join(self.scraped_titles) + '\n')
+        def request_from_article(article):
+            return {
+                'PutRequest': {
+                    'Item': {
+                        'name': {'S': article['name']},
+                        'url': {'S': article['url']},
+                        'ttl': {'N': str(article['ttl'])}
+                    }
+                }
+            }
 
-    def remove_old_articles(self):
-        with open(f'{self.bankier_loader_dir}/pastArticles.txt', 'r+') as file:
-            articles = file.read().split('\n')[:-1]
-            last_100_article_links = '\n'.join(articles[-100:])
-            file.seek(0)
-            file.truncate()
-            file.write(last_100_article_links + '\n')
+        def chunks(whole, chunk_size):
+            for i in range(0, len(whole), chunk_size):
+                yield whole[i:i + chunk_size]
+
+        put_requests = [request_from_article(article) for article in self.new_scraped_articles]
+        for requests_chunk in chunks(put_requests, 25):
+            client.batch_write_item(
+                RequestItems={
+                    'bankierTable': requests_chunk
+                }
+            )
 
     @staticmethod
     def absolute_link(link: str):

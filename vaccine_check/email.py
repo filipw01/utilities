@@ -2,6 +2,8 @@ from datetime import date
 import boto3
 from botocore.exceptions import ClientError
 
+client = boto3.client('ses', region_name='eu-central-1')
+
 
 def build_email(email_content):
     return f'''
@@ -36,8 +38,6 @@ def build_email(email_content):
 
 
 def send_html_email(html):
-    client = boto3.client('ses', region_name='eu-central-1')
-
     try:
         response = client.send_email(
             Destination={

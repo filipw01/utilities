@@ -1,6 +1,6 @@
 org: filipw01
 app: utilities
-service: vaccine-check
+service: scrapers
 frameworkVersion: '2'
 
 provider:
@@ -16,15 +16,47 @@ provider:
             - "ses:SendEmail"
           Resource:
             arn:aws:ses:eu-central-1:857990243218:identity/wachowiakf@gmail.com
+        - Effect: 'Allow'
+          Action:
+            - "dynamodb:BatchWriteItem"
+            - "dynamodb:GetItem"
+          Resource:
+            arn:aws:dynamodb:*:*:table/bankierTable
+
+resources:
+  Resources:
+    bankierTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: bankierTable
+        Tags:
+          - Key: "Name"
+            Value: "bankierTable"
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
 
 functions:
-  vaccine_checker:
+  vaccine_check:
     handler: vaccine_check.init
     memorySize: 128
     events:
       - schedule: rate(12 minutes)
   pyscrape:
     handler: pyscrape.init
+    memorySize: 128
+    timeout: 120
+    events:
+      - schedule: cron(0 6,11,15 ? * * *)
 
 custom:
   pythonRequirements:

@@ -1,22 +1,35 @@
-import os
-from smtplib import SMTP
 from datetime import date
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import boto3
+from botocore.exceptions import ClientError
+
+client = boto3.client('ses', region_name='eu-central-1')
 
 
 def send_html_email(html):
-    server = SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    server.login(os.getenv('EMAIL_USERNAME'), os.getenv('EMAIL_PASSWORD'))
-
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = f'Bankier - {date.today()}'
-    msg.attach(MIMEText(html, 'html'))
-
-    server.sendmail('news@bankier.pl', 'wachowiakf@gmail.com', msg.as_string())
-    server.quit()
+    try:
+        response = client.send_email(
+            Destination={
+                'ToAddresses': ["wachowiakf@gmail.com"]
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': 'UTF-8',
+                        'Data': html
+                    }
+                },
+                'Subject': {
+                    'Charset': 'UTF-8',
+                    'Data': f'Vaccine checker - {date.today()}'
+                }
+            },
+            Source='Vaccine checker <wachowiakf@gmail.com>'
+        )
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print("Email sent! Message ID:"),
+        print(response['MessageId'])
 
 
 def build_html_email(elements):

@@ -2,6 +2,8 @@ bin/*
 pyscrape/pyscrape.plist
 **/pastArticles.txt
 **/pastJobs.txt
+.serverless
+node_modules
 
 __pycache__/
 *$py.class

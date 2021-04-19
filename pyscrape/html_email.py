@@ -20,10 +20,10 @@ def send_html_email(html):
                 },
                 'Subject': {
                     'Charset': 'UTF-8',
-                    'Data': f'Vaccine checker - {date.today()}'
+                    'Data': f'PyScrapeNews - {date.today()}'
                 }
             },
-            Source='Vaccine checker <wachowiakf@gmail.com>'
+            Source='PyScrape News <wachowiakf@gmail.com>'
         )
     except ClientError as e:
         print(e.response['Error']['Message'])

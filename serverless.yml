@@ -23,6 +23,9 @@ functions:
     memorySize: 128
     events:
       - schedule: rate(12 minutes)
+  pyscrape:
+    handler: pyscrape.init
+
 custom:
   pythonRequirements:
     pythonBin: python

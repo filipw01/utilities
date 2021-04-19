@@ -1,6 +1,6 @@
 import os
 import requests
-from vaccine_check.email import send_html_email
+from vaccine_check.email import send_html_email, build_email
 
 
 class VaccineChecker:
@@ -18,15 +18,17 @@ class VaccineChecker:
             }
         ).json()
         if 'patientData' not in response:
-            raise ConnectionError(f"Couldn't connect to the IKP API '{str(response)}'")
+            error_message = f"Couldn't connect to the IKP API '{str(response)}'"
+            send_html_email(build_email(error_message))
+            raise ConnectionError(error_message)
         if len(response.keys()) > 1:
             self.vaccineData = response
-            email = self.prepare_email_content()
+            email = build_email(self.prepare_email_content())
             send_html_email(email)
         print(f"No prescription ({str(response)})")
 
     def prepare_email_content(self):
-        email = '<h2>Vaccine</h2>'
+        email = '<h1>Vaccine</h1>'
         email += '<b style="color: red">'
         for (key, value) in self.vaccineData.items():
             email += f'{key} - {str(value)}<br/>'

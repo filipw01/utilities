@@ -1,9 +1,7 @@
 import time
 import boto3
-from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup
 import requests
-import os
 import re
 
 from pyscrape.loaders.loader import Loader
@@ -16,7 +14,6 @@ class BankierLoader(Loader):
         self.new_scraped_articles = []
         self.scraped_titles = []
         self.articles = []
-        self.bankier_loader_dir = os.path.dirname(os.path.realpath(__file__))
 
     def scrape(self):
         req = requests.get('https://bankier.pl')
@@ -64,7 +61,10 @@ class BankierLoader(Loader):
                 lead = 'Nie udało się pobrać treści'
 
             current_epoch = int(time.time())
-            self.new_scraped_articles.append({'url': article_link, 'name': title, 'ttl': current_epoch})
+            seconds_in_2_days = 60 * 60 * 48
+            self.new_scraped_articles.append(
+                {'url': article_link, 'name': title, 'ttl': current_epoch + seconds_in_2_days}
+            )
             self.articles.append((article_link, img['src'], title, lead))
             print(f'Bankier: Scraped {len(self.articles)} - {title}')
 
@@ -98,22 +98,22 @@ class BankierLoader(Loader):
     @staticmethod
     def is_boring(title):
         boring_fragments = [
-            'Zapowiedź dnia',
-            'To był dzień',
-            'Pekao',
+            'zapowiedź dnia',
+            'to był dzień',
+            'pekao',
             'budowlan',
-            'Witucki',
-            'Kuczyński',
-            'Bankier.pl',
+            'witucki',
+            'kuczyński',
             'bankier.pl',
-            'Najważniejsze wiadomości',
+            'najważniejsze wiadomości',
             'przerw',
             'nieruchomo',
             'lidl',
             'biedronka',
+            'huuuge'
         ]
         for boring in boring_fragments:
-            if boring in title:
+            if boring in title.lower():
                 return True
         return False
 

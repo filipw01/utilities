@@ -1,10 +1,8 @@
-from dotenv import load_dotenv
 from pyscrape.html_email import send_html_email, build_html_email
 from pyscrape.loaders.bankier.bankier import BankierLoader
 
 
 def init(event=None, context=None):
-    load_dotenv(verbose=True)
     loaders = [
         BankierLoader(),
     ]

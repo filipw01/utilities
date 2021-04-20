@@ -1,0 +1,29 @@
+org: filipw01
+app: utilities
+service: vaccine-check
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: eu-central-1
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - "ses:SendEmail"
+          Resource:
+            arn:aws:ses:eu-central-1:857990243218:identity/wachowiakf@gmail.com
+
+functions:
+  vaccine_check:
+    handler: main.init
+    memorySize: 128
+    maximumRetryAttempts: 0
+    events:
+      - schedule: rate(12 minutes)
+
+plugins:
+  - serverless-python-requirements

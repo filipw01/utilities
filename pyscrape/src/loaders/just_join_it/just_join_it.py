@@ -1,7 +1,7 @@
 import os
 import requests
 
-from pyscrape.loaders.job_loader import JobLoader
+from ..job_loader import JobLoader
 
 
 class JustJoinItLoader(JobLoader):

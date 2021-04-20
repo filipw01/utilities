@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
-from pyscrape.loaders.loader import Loader
+from ..loader import Loader
 
 client = boto3.client('dynamodb', region_name='eu-central-1')
 

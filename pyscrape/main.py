@@ -1,5 +1,5 @@
-from pyscrape.html_email import send_html_email, build_html_email
-from pyscrape.loaders.bankier.bankier import BankierLoader
+from src.html_email import send_html_email, build_html_email
+from src.loaders.bankier.bankier import BankierLoader
 
 
 def init(event=None, context=None):

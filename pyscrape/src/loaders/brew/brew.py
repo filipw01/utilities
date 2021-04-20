@@ -1,6 +1,6 @@
 import subprocess
 
-from pyscrape.loaders.loader import Loader
+from ..loader import Loader
 
 
 class BrewLoader(Loader):

@@ -1,6 +1,6 @@
 org: filipw01
 app: utilities
-service: scrapers
+service: pyscrape
 frameworkVersion: '2'
 
 provider:
@@ -46,21 +46,12 @@ resources:
           Enabled: true
 
 functions:
-  vaccine_check:
-    handler: vaccine_check.init
-    memorySize: 128
-    events:
-      - schedule: rate(12 minutes)
   pyscrape:
-    handler: pyscrape.init
+    handler: main.init
     memorySize: 128
     timeout: 120
     events:
       - schedule: cron(0 6,11,15 ? * * *)
-
-custom:
-  pythonRequirements:
-    pythonBin: python
 
 plugins:
   - serverless-python-requirements

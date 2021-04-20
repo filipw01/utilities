@@ -1,6 +1,6 @@
 import os
 import requests
-from vaccine_check.email import send_html_email, build_email
+from .email import send_html_email, build_email
 
 
 class VaccineChecker:

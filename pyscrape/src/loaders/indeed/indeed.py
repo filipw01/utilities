@@ -3,7 +3,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-from pyscrape.loaders.job_loader import JobLoader
+from ..job_loader import JobLoader
 
 
 class IndeedLoader(JobLoader):

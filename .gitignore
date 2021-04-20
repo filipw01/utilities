@@ -1,5 +1,4 @@
 bin/*
-pyscrape/pyscrape.plist
 **/pastArticles.txt
 **/pastJobs.txt
 .serverless

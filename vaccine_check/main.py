@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from vaccine_check.vaccine_check import VaccineChecker
+from src.vaccine_check import VaccineChecker
 
 
 def init(event=None, context=None):

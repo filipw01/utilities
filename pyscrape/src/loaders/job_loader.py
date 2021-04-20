@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from pyscrape.loaders.loader import Loader
+from .loader import Loader
 
 
 class JobLoader(Loader):

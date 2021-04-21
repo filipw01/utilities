@@ -1,12 +1,12 @@
 org: filipw01
 app: utilities
-service: pyscrape
+service: vaccine-check-auth
 frameworkVersion: '2'
 
 provider:
   name: aws
   region: eu-central-1
-  runtime: python3.8
+  runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   iam:
     role:
@@ -18,22 +18,21 @@ provider:
             arn:aws:ses:eu-central-1:857990243218:identity/wachowiakf@gmail.com
         - Effect: 'Allow'
           Action:
-            - "dynamodb:BatchWriteItem"
-            - "dynamodb:GetItem"
+            - "dynamodb:PutItem"
           Resource:
-            arn:aws:dynamodb:*:*:table/bankierTable
+            arn:aws:dynamodb:*:*:table/vaccineCheck
 
 resources:
   Resources:
-    bankierTable:
+    vaccineCheck:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: bankierTable
+        TableName: vaccineCheck
         AttributeDefinitions:
-          - AttributeName: name
-            AttributeType: S
+          - AttributeName: ttl
+            AttributeType: N
         KeySchema:
-          - AttributeName: name
+          - AttributeName: ttl
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -43,12 +42,10 @@ resources:
           Enabled: true
 
 functions:
-  pyscrape:
-    handler: main.init
-    memorySize: 128
-    timeout: 120
+  vaccine_check_auth:
+    handler: index.handler
+    memorySize: 1024
+    timeout: 60
+    maximumRetryAttempts: 0
     events:
-      - schedule: cron(0 6,11,15 ? * * *)
-
-plugins:
-  - serverless-python-requirements
+      - schedule: rate(11 hours)

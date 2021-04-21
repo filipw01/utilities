@@ -16,6 +16,11 @@ provider:
             - "ses:SendEmail"
           Resource:
             arn:aws:ses:eu-central-1:857990243218:identity/wachowiakf@gmail.com
+        - Effect: 'Allow'
+          Action:
+            - "dynamodb:Scan"
+          Resource:
+            arn:aws:dynamodb:*:*:table/vaccineCheck
 
 functions:
   vaccine_check:

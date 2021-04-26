@@ -39,7 +39,7 @@ exports.handler = async (event, context, callback) => {
         });
         await page.waitForSelector('#loginForm\\:loginButton')
         await page.click('#loginForm\\:loginButton')
-        await page.waitForSelector('.sc-oHXjo')
+        await page.waitForSelector('#contentWrapper > div > div')
 
         const sessionId = (await page.cookies())[0].value
         const SECONDS_IN_12_HOURS = 60 * 60 * 12

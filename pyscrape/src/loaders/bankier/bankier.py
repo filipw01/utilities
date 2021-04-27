@@ -110,7 +110,12 @@ class BankierLoader(Loader):
             'nieruchomo',
             'lidl',
             'biedronka',
-            'huuuge'
+            'huuuge',
+            'loka',
+            'gpw',
+            'kredy',
+            'frank',
+            'kulczyk',
         ]
         for boring in boring_fragments:
             if boring in title.lower():

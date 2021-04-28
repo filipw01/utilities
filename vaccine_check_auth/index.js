@@ -24,6 +24,8 @@ exports.handler = async (event, context, callback) => {
         });
         const page = await browser.newPage();
         await page.goto('https://pacjent.erejestracja.ezdrowie.gov.pl/')
+        await page.waitForSelector('.jOjgbJ')
+        await page.click('.jOjgbJ')
         await page.waitForSelector('.margin-sides-zero > div')
         await page.click('.margin-sides-zero > div')
         await page.waitForSelector('#loginForm\\:login')
@@ -39,7 +41,7 @@ exports.handler = async (event, context, callback) => {
         });
         await page.waitForSelector('#loginForm\\:loginButton')
         await page.click('#loginForm\\:loginButton')
-        await page.waitForSelector('.dXwZsU')
+        await page.waitForSelector('.hwdWZj')
 
         const sessionId = (await page.cookies())[0].value
         const SECONDS_IN_12_HOURS = 60 * 60 * 12

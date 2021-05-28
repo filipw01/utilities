@@ -116,6 +116,12 @@ class BankierLoader(Loader):
             'kredy',
             'frank',
             'kulczyk',
+            'PKO',
+            'paliw',
+            'kurs',
+            'giełd',
+            'czyta',
+            'korekta'
         ]
         for boring in boring_fragments:
             if boring in title.lower():

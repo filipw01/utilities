@@ -48,7 +48,7 @@ functions:
     memorySize: 128
     timeout: 120
     events:
-      - schedule: cron(0 6,11,15 ? * * *)
+      - schedule: cron(0 13 ? * * *)
 
 plugins:
   - serverless-python-requirements

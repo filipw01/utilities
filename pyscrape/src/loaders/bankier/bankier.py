@@ -122,6 +122,14 @@ class BankierLoader(Loader):
             'giełd',
             'czyta',
             'korekta'
+            'kwarantann',
+            'branż',
+            'pandem',
+            'knf',
+            'dom',
+            'debiut',
+            'orlen',
+            'konto',
         ]
         for boring in boring_fragments:
             if boring in title.lower():
